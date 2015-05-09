@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"math/rand"
 	"time"
+	"github.com/nsf/termbox-go"
 )
 
 const DeadChar byte = '.'
@@ -14,12 +14,18 @@ const LiveChar byte = 'x'
 const UninitializedBoardSize int = -1
 const DefaultBoardSize int = 40	// TODO: revisist this
 
+const UIDelay = 100 * time.Millisecond	
+
 
 /*
 	Main application:
 */
 
 func main() {
+
+	ui := Ui{}
+
+	ui.Init()
 
 	/*
 		Read in command line parameters:
@@ -45,7 +51,7 @@ func main() {
 	var UseRand bool = !UseInFile
 
 	var showGrid0 bool = false
-	var lineRead int
+	//var lineRead int
 
 	// Current implementation: double buffer the grid. Storing the changes
 	// in a list may be more efficient. See readme for more details.
@@ -98,13 +104,13 @@ func main() {
 			}
 		}
 
-		printGrid(currentGrid, BoardSize)
+		ui.PrintGrid(currentGrid, BoardSize)
 
-		// Hack to delay next generation via ENTER keypress.
-    _, err:= fmt.Scanf("%d", &lineRead)
-    _ = err
+		if ui.Update() {
+			break
+		}
 	}
-
+	ui.Destroy()
 }
 
 
@@ -225,6 +231,53 @@ func countNeighbours(currentGrid [][]bool, row int, col int, BoardSize int) int 
 	Display-related functions:
 */
 
+type Ui struct {
+	eventQueue chan termbox.Event 
+}
+
+func (ui *Ui) Init() {
+	termbox.Init()
+	termbox.SetInputMode(termbox.InputEsc)
+	ui.eventQueue = make(chan termbox.Event)
+
+	go func() {
+		for {
+			ui.eventQueue <- termbox.PollEvent()
+		}
+	}()
+}
+
+func (ui *Ui) Destroy() {
+	termbox.Close()
+}
+
+func (ui *Ui) PrintGrid(currentGrid [][]bool, BoardSize int) {
+	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+
+	for row := 0; row < BoardSize; row++ {
+		for col := 0; col < BoardSize; col++ {
+			if currentGrid[row][col] {
+				termbox.SetCell(row, col, ' ', termbox.ColorWhite, termbox.ColorWhite)
+			} else {
+				termbox.SetCell(row, col, ' ', termbox.ColorBlack, termbox.ColorBlack)
+			}
+		}
+	}
+}
+
+func (ui *Ui) Update() bool {
+	select {
+	case <- ui.eventQueue:
+		//_ := ev
+		return true
+	default:
+		termbox.Flush()
+		time.Sleep(UIDelay)	
+		return false
+	}
+}
+
+/*
 func printGrid(currentGrid [][]bool, BoardSize int) {
 	for row := 0; row < BoardSize; row++ {
 		for col := 0; col < BoardSize; col++ {
@@ -237,3 +290,4 @@ func printGrid(currentGrid [][]bool, BoardSize int) {
 		fmt.Println("")
 	}
 }
+*/
