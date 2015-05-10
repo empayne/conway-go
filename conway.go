@@ -44,8 +44,8 @@ func main() {
 	var showGrid0 bool = false
 	var exit = false
 
-	// Current implementation: double buffer the grid. Storing the changes
-	// in a list may be more efficient. See readme for more details.
+	// Current implementation: double buffer the grid. 
+	// Storing the changes in a list may be more efficient.
 	var grid0 [][]bool
 	var grid1 [][]bool
 
@@ -143,10 +143,10 @@ func readConfigurationFile(inFile string) (int, [][]bool) {
 	row, col := 0, 0
 	for _, char := range data {
 		if char == LiveChar {
-			grid[row][col] = true
+			grid[col][row] = true
 			col++
 		} else if char == DeadChar {
-			grid[row][col] = false
+			grid[col][row] = false
 			col++
 		} else if char == CarriageReturnChar || char == LineFeedChar {
 			if col == dimension {
