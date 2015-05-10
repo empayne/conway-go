@@ -5,27 +5,19 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"time"
-	"github.com/nsf/termbox-go"
 )
 
 const DeadChar byte = '.'
 const LiveChar byte = 'x'
 
 const UninitializedBoardSize int = -1
-const DefaultBoardSize int = 40	// TODO: revisist this
-
-const UIDelay = 100 * time.Millisecond	
-
+const DefaultBoardSize int = 40 // TODO: revisit this
 
 /*
 	Main application:
 */
 
 func main() {
-
-	ui := Ui{}
-
-	ui.Init()
 
 	/*
 		Read in command line parameters:
@@ -51,7 +43,7 @@ func main() {
 	var UseRand bool = !UseInFile
 
 	var showGrid0 bool = false
-	//var lineRead int
+	var exit = false
 
 	// Current implementation: double buffer the grid. Storing the changes
 	// in a list may be more efficient. See readme for more details.
@@ -75,7 +67,15 @@ func main() {
 
 	grid1 = createGrid(BoardSize)
 
-	for {
+	// Initialize UI:
+	var ui Ui = Ui{}
+	ui.Init()
+
+	/*
+		Main application logic:
+	*/
+
+	for exit == false {
 		// Local aliases for grid0, grid1:
 		var currentGrid [][]bool
 		var nextGrid [][]bool
@@ -105,14 +105,11 @@ func main() {
 		}
 
 		ui.PrintGrid(currentGrid, BoardSize)
-
-		if ui.Update() {
-			break
-		}
+		exit = ui.Update()
 	}
+
 	ui.Destroy()
 }
-
 
 /*
 	Initialization functions:
@@ -132,7 +129,7 @@ func readConfigurationFile(inFile string) (int, [][]bool) {
 	}
 
 	// For a (correctly) formatted as an NxN grid, find N:
-	for _, char := range data	{
+	for _, char := range data {
 		if char == DeadChar || char == LiveChar {
 			dimension++
 		} else if char == CarriageReturnChar || char == LineFeedChar {
@@ -144,7 +141,7 @@ func readConfigurationFile(inFile string) (int, [][]bool) {
 
 	// Read the input file into the grid. Panic if incorrectly formatted.
 	row, col := 0, 0
-	for _, char := range data	{
+	for _, char := range data {
 		if char == LiveChar {
 			grid[row][col] = true
 			col++
@@ -187,7 +184,6 @@ func createGrid(dimension int) [][]bool {
 	return grid
 }
 
-
 /*
 	Helper functions:
 */
@@ -225,69 +221,3 @@ func countNeighbours(currentGrid [][]bool, row int, col int, BoardSize int) int 
 
 	return sum
 }
-
-
-/*
-	Display-related functions:
-*/
-
-type Ui struct {
-	eventQueue chan termbox.Event 
-}
-
-func (ui *Ui) Init() {
-	termbox.Init()
-	termbox.SetInputMode(termbox.InputEsc)
-	ui.eventQueue = make(chan termbox.Event)
-
-	go func() {
-		for {
-			ui.eventQueue <- termbox.PollEvent()
-		}
-	}()
-}
-
-func (ui *Ui) Destroy() {
-	termbox.Close()
-}
-
-func (ui *Ui) PrintGrid(currentGrid [][]bool, BoardSize int) {
-	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
-
-	for row := 0; row < BoardSize; row++ {
-		for col := 0; col < BoardSize; col++ {
-			if currentGrid[row][col] {
-				termbox.SetCell(row, col, ' ', termbox.ColorWhite, termbox.ColorWhite)
-			} else {
-				termbox.SetCell(row, col, ' ', termbox.ColorBlack, termbox.ColorBlack)
-			}
-		}
-	}
-}
-
-func (ui *Ui) Update() bool {
-	select {
-	case <- ui.eventQueue:
-		//_ := ev
-		return true
-	default:
-		termbox.Flush()
-		time.Sleep(UIDelay)	
-		return false
-	}
-}
-
-/*
-func printGrid(currentGrid [][]bool, BoardSize int) {
-	for row := 0; row < BoardSize; row++ {
-		for col := 0; col < BoardSize; col++ {
-			if currentGrid[row][col] {
-				fmt.Print(string(LiveChar))
-			} else {
-				fmt.Print(string(DeadChar))
-			}
-		}
-		fmt.Println("")
-	}
-}
-*/
