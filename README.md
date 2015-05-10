@@ -1,5 +1,6 @@
 Conway's Game of Life implemented using Golang.
 Uses termbox-go UI library.
+Video available at: http://youtu.be/DZQHBPDbfpE
 
 Sample usage:
 * go run conway.go ui.go
