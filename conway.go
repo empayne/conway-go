@@ -11,7 +11,7 @@ const DeadChar byte = '.'
 const LiveChar byte = 'x'
 
 const UninitializedBoardSize int = -1
-const DefaultBoardSize int = 40 // TODO: revisit this
+const DefaultBoardSize int = 40
 
 /*
 	Main application:
@@ -34,7 +34,6 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	// TODO: update readme for double buffering details.
-	// TODO: look into termbox-go
 
 	var BoardSize int = *ptrBoardSize
 	var inFile string = *ptrInFile
@@ -69,12 +68,13 @@ func main() {
 
 	// Initialize UI:
 	var ui Ui = Ui{}
-	ui.Init()
+	ui.Init(BoardSize)
 
 	/*
 		Main application logic:
 	*/
 
+	// Loop and update the board, checking UI thread for exit condition in ui.Update()
 	for exit == false {
 		// Local aliases for grid0, grid1:
 		var currentGrid [][]bool

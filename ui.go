@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/nsf/termbox-go"
 	"time"
 )
@@ -16,8 +17,15 @@ type Ui struct {
 	eventQueue chan termbox.Event
 }
 
-func (ui *Ui) Init() {
+func (ui *Ui) Init(BoardSize int) {
 	termbox.Init()
+
+	x, y := termbox.Size()
+	if BoardSize > x || BoardSize > y {
+		msg := fmt.Sprintf("Error! Board size is larger than terminal size (%d x %d)", x, y)
+		panic(msg)
+	}
+
 	termbox.SetInputMode(termbox.InputEsc)
 	ui.eventQueue = make(chan termbox.Event)
 
@@ -34,15 +42,18 @@ func (ui *Ui) Destroy() {
 }
 
 func (ui *Ui) PrintGrid(currentGrid [][]bool, BoardSize int) {
-	termbox.Clear(termbox.ColorBlack, termbox.ColorBlack)
+	var cellColour termbox.Attribute
+
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
 	for row := 0; row < BoardSize; row++ {
 		for col := 0; col < BoardSize; col++ {
 			if currentGrid[row][col] {
-				termbox.SetCell(row, col, UICell, termbox.ColorDefault, termbox.ColorWhite)
+				cellColour = termbox.ColorWhite
 			} else {
-				termbox.SetCell(row, col, UICell, termbox.ColorDefault, termbox.ColorBlack)
+				cellColour = termbox.ColorBlack
 			}
+			termbox.SetCell(row, col, UICell, termbox.ColorDefault, cellColour)
 		}
 	}
 }
