@@ -33,8 +33,6 @@ func main() {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	// TODO: update readme for double buffering details.
-
 	var BoardSize int = *ptrBoardSize
 	var inFile string = *ptrInFile
 

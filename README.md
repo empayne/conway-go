@@ -7,7 +7,7 @@ Sample usage:
 * go run conway.go ui.go -size=20
 * go run conway.go ui.go -input="glider.txt"
 
-Press any key to exit.
+Press ESC to exit.
 
 Some possible optimizations include:
 * Use the Hashlife memoized algorithm (instead of the current naive implementation).
