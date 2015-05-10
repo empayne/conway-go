@@ -59,12 +59,14 @@ func (ui *Ui) PrintGrid(currentGrid [][]bool, BoardSize int) {
 }
 
 func (ui *Ui) Update() bool {
+
+	termbox.Flush()
+	time.Sleep(UIDelay)
+
 	select {
-	case <-ui.eventQueue:
-		return true
+	case ev := <-ui.eventQueue:
+		return (ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc)
 	default:
-		termbox.Flush()
-		time.Sleep(UIDelay)
 		return false
 	}
 }
