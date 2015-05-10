@@ -44,7 +44,7 @@ func main() {
 	var showGrid0 bool = false
 	var exit = false
 
-	// Current implementation: double buffer the grid. 
+	// Current implementation: double buffer the grid.
 	// Storing the changes in a list may be more efficient.
 	var grid0 [][]bool
 	var grid1 [][]bool

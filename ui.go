@@ -59,7 +59,6 @@ func (ui *Ui) PrintGrid(currentGrid [][]bool, BoardSize int) {
 }
 
 func (ui *Ui) Update() bool {
-
 	termbox.Flush()
 	time.Sleep(UIDelay)
 
